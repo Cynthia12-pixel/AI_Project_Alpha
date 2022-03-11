@@ -6,6 +6,7 @@ import pywhatkit
 import wikipedia
 import os
 import pyautogui
+import keyboard
 
 contact_list={"maa":"+919735148140","baba":"+918389866655","gomu":"+918436924914"}
 engine=pyttsx3.init('sapi5')
@@ -55,9 +56,9 @@ def youtubeSearch(query):
     query = query.replace("alpha", "")
     web = "https://www.youtube.com/results?search_query=" + query
     webbrowser.open(web)
-    speak("I have something sore for you.")
-    speak("I hope you will like it")
+    speak("I have something more for you and I hope you will like it")
     pywhatkit.playonyt(query)
+    keyboard.press('space bar')
 
 def websiteSearch():
     speak("Tell the name of the website only")

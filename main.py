@@ -7,6 +7,10 @@ import wikipedia
 import os
 import pyautogui
 import features
+import playsound
+import pytube
+import tkinter
+import googletrans
 
 engine=pyttsx3.init('sapi5')
 voices=engine.getProperty('voices')
@@ -66,6 +70,20 @@ if __name__ == "__main__":
             features.whatsapp_auto()
         elif "take screenshot" in query:
             features.screenshot()
+        elif "this video" in query:
+            features.youtube_auto(query)
+        elif "open the app" in query or "start the app" in query:
+            features.openApps(query)
+        elif "close the app" in query:
+            features.closeApps(query)
+        elif "joke" in query or "entertain me" in query:
+            features.jokes()
+        elif "set alarm" in query:
+            features.alarm()
+        elif "download the youtube video" in query or "youtube video download" in query or "download the video" in query:
+            features.videoDownloader()
+        elif "open translator" in query:
+            features.Tran()
 
         speak("What can I do for you?")
         query=takeCommand().lower()

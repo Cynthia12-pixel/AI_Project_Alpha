@@ -9,9 +9,13 @@ import pyautogui
 import keyboard
 import pyjokes
 from playsound import playsound
-import tkinter
+import requests
+import bs4
 import pytube
 import googletrans
+from gtts import gTTS
+import PyPDF2
+
 
 contact_list={"maa":"+919735148140","baba":"+918389866655","gomu":"+918436924914"}
 engine=pyttsx3.init('sapi5')
@@ -49,7 +53,7 @@ def googleSearch(query):
     ans = takeCommand().lower()
     if ans != "none":
         if "yes" in ans:
-            results = wikipedia.summary(query, sentences=2)
+            results = wikipedia.summary(query, sentences=5)
             speak("According to Wikipedia")
             speak(results)
         else:
@@ -62,11 +66,11 @@ def youtubeSearch(query):
     web = "https://www.youtube.com/results?search_query=" + query
     webbrowser.open(web)
     speak("Do you want me to suggest you the first video for your search?")
-    answ=takeCommand()
+    answ=takeCommand().lower()
     if "yes" in answ:
         pywhatkit.playonyt(query)
         speak("Do you want me to play this video?")
-        ans=takeCommand()
+        ans=takeCommand().lower()
         if "yes" in ans:
             youtube_auto('play')
         else:
@@ -98,7 +102,7 @@ def youtube_auto(query):
 
 def websiteSearch():
     speak("Tell the name of the website only")
-    name = takeCommand()
+    name = takeCommand().lower()
     if name != "none":
         speak("Launching the website")
         web1 = "https://www." + name + ".com"
@@ -212,13 +216,17 @@ def alarm():
     speak("Tell the minutes of the alarm")
     min=int(takeCommand())
     alarm_time=datetime.datetime(ye,mon,da,hr,min)
-    a_time=alarm_time.strftime("20%y-%m-%d %H:%M:%S")
+    a_time=alarm_time.strftime("20%y-%m-%d %H:%M")
     while True:
         now = datetime.datetime.now()
-        nowf = now.strftime("20%y-%m-%d %H:%M:%S")
+        nowf = now.strftime("20%y-%m-%d %H:%M")
         if nowf==a_time:
             speak("Wake up")
-            os.startfile("C:\\Users\\ASUS\\Downloads\\Alarm.mp3")
+            # mixer.init()
+            # mixer.music.load("C:\\Users\\ASUS\\AI_Project_Alpha\\Alarmm.mp3")
+            # mixer.music.play(5)
+            playsound("C:\\Users\\ASUS\\AI_Project_Alpha\\Alarmm.mp3",block=True)
+            # os.startfile("C:\\Users\\ASUS\\Downloads\\Alarm.mp3")
         elif nowf>a_time:
             break
 
@@ -227,7 +235,7 @@ def videoDownloader():
     link=input("Enter the URL:")
     url=pytube.YouTube(link)
     video=url.streams.first()
-    video.download("C:\\Users\\ASUS\\AI_Project_Alpha\\Youtube Videos")
+    video.download("C:\\Users\\ASUS\\AI_Project_Alpha\\Additionals\\Youtube Videos")
     speak("Video downloaded")
 
 def takeHindi():
@@ -252,3 +260,59 @@ def Tran():
     translator = googletrans.Translator()
     translate_text = translator.translate(line,dest='en')
     speak(translate_text.text)
+
+def remember(query):
+    remember_msg=query
+    remember_msg=remember_msg.replace("remember that","")
+    remember_msg=remember_msg.replace("alpha","")
+    speak("You are telling me to remind you that\n"+remember_msg)
+    rememberr=open("data.txt","w")
+    rememberr.write(remember_msg)
+    rememberr.close()
+
+def reminder():
+    msg=open("data.txt","r")
+    speak("You told me remind you that :"+msg.read())
+
+def Temp(query):
+    quer=query
+    quer=quer.replace("alpha","")
+    quer=quer.replace("what is the","")
+    quer=quer.replace("tell me the","")
+    quer=quer.replace("tell the","")
+    quer=quer.replace("please","")
+    quer=quer.replace("I want to know the","")
+    quer=quer.replace("temperature of","temperature in")
+    quer=quer.replace("temperature at","temperature in")
+    print(quer)
+    url="https://www.google.com/search?q=" + quer
+    r=requests.get(url)
+    data=bs4.BeautifulSoup(r.text,"html.parser")
+    temper=data.find("div",class_="BNeawe")
+    speak("The "+quer+" is " + temper.text)
+
+def bookReader():
+    speak("Tell me the name of the book that you want to read")
+    bookname=takeCommand().capitalize()
+    loc="C:\\Users\\ASUS\\AI_Project_Alpha\\Additionals\\Books\\" + bookname + ".pdf"
+    os.startfile(loc)
+    book=open(loc,"rb")
+    pdfreader=PyPDF2.PdfFileReader(book)
+    pages=pdfreader.getNumPages()
+    speak("The total number of pages in the book"+bookname+"is:")
+    speak(pages)
+    speak("From which page do you want me to read it for you?")
+    numPage=int(takeCommand())
+    page=pdfreader.getPage(numPage)
+    text1=page.extractText()
+    speak("In which language do you want me to read it for you?")
+    lan=takeCommand().lower()
+    if "hindi" in lan:
+        translator=googletrans.Translator()
+        translation=translator.translate(text1,dest="hi")
+        textm=translation.text
+        speech=gTTS(text=textm)
+        speech.save(book+".mp3")
+        playsound(book+".mp3")
+    else:
+        speak(text1)

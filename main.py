@@ -1,16 +1,7 @@
 import datetime
 import speech_recognition as sr
 import pyttsx3
-import webbrowser
-import pywhatkit
-import wikipedia
-import os
-import pyautogui
 import features
-import playsound
-import pytube
-import tkinter
-import googletrans
 
 engine=pyttsx3.init('sapi5')
 voices=engine.getProperty('voices')
@@ -39,6 +30,8 @@ def takeCommand():
     with sr.Microphone() as source:
         print("Listening...")
         r.pause_threshold=1
+        r.energy_threshold=350
+        r.adjust_for_ambient_noise(source)
         audio=r.listen(source)
     try:
         print("Recognizing...")
@@ -49,8 +42,6 @@ def takeCommand():
         speak("Please Repeat")
         quer=takeCommand()
         return quer
-
-
 
 if __name__ == "__main__":
     wishMe()
@@ -84,14 +75,15 @@ if __name__ == "__main__":
             features.videoDownloader()
         elif "open translator" in query:                                    #FEATURE 12:Translating Hindi sentences to English
             features.Tran()
-        elif "remember that" in query:                                      #FEATURE 13:Telling Alpha to remember some message so that she can remind me when I ask her to do so in future
+        elif "remember that" in query:                                      #FEATURE 13:Telling Alpha to remember some message so that she can remind user when the user ask her to do so in future
             features.remember(query)
-        elif "what do you remember" in query or "the reminder" in query:    #FEATURE 14:Asking Alpha to remind me the message that I once told her to remember
+        elif "what do you remember" in query or "the reminder" in query:    #FEATURE 14:Asking Alpha to remind user the message that I once told her to remember
             features.reminder()
-        elif "temperature of" in query or "temperature in" in query or "temperature at" in query:       #FEATURE 15
+        elif "temperature of" in query or "temperature in" in query or "temperature at" in query:                          #FEATURE 15:Getting Temperature information of any place asked by the user
             features.Temp(query)
-        elif "read a book" in query:
-            features.bookReader()
+        elif "send email" in query:                                         #FEATURE 16:Sending email to any person whose name is included in the email_list dictionary and in case if the recipent's name is not there then asking the user to enter the email ID and then sending mail.
+            features.sendEmail()
+
         speak("What can I do for you?")
         query=takeCommand().lower()
     speak("thank you")

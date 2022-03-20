@@ -1,4 +1,5 @@
 import datetime
+import time
 import speech_recognition as sr
 import pyttsx3
 import webbrowser
@@ -13,11 +14,11 @@ import requests
 import bs4
 import pytube
 import googletrans
-from gtts import gTTS
-import PyPDF2
+import smtplib
+import email
 
-
-contact_list={"maa":"+919735148140","baba":"+918389866655","gomu":"+918436924914"}
+contact_list={"maa":"+919735148140","baba":"+918389866655","suraj":"+918436924914","monalisa":"+918317849723","rohit":"+917278174562"}
+email_list={"baba":"sourav.ghosal73@gmail.com","someone":"purisurajkumar@gmail.com","priyanka":"tuktuki.ghosal@gmail.com"}
 engine=pyttsx3.init('sapi5')
 voices=engine.getProperty('voices')
 print(voices)
@@ -33,6 +34,8 @@ def takeCommand():
     with sr.Microphone() as source:
         print("Listening...")
         r.pause_threshold=1
+        r.energy_threshold=350
+        r.adjust_for_ambient_noise(source)
         audio=r.listen(source)
     try:
         print("Recognizing...")
@@ -99,7 +102,6 @@ def youtube_auto(query):
         keyboard.press_and_release('down arrow')
     speak("Done")
 
-
 def websiteSearch():
     speak("Tell the name of the website only")
     name = takeCommand().lower()
@@ -146,26 +148,33 @@ def playMusic():
         pywhatkit.playonyt(music)
 
 def whatsapp_auto():
-    speak("To whom do you want to send the messege?")
+    speak("To whom do you want to send the message?")
     name=takeCommand().lower()
     if name in contact_list.keys():
-        msg=speak("Tell me the messege that you want me to send to")
+        msg=speak("Tell me the message that you want me to send to")
         msg=takeCommand().lower()
         speak("Tell me the time when you want the message to deliver")
         answer=takeCommand().lower()
         if "right now" in answer or "now" in answer:
             hours=int(datetime.datetime.now().hour)
             mins=int(datetime.datetime.now().minute)
-            mins=mins+1
-            pywhatkit.sendwhatmsg(contact_list[name],msg,hours,mins,20)
+            mins=mins+2
+            pywhatkit.sendwhatmsg(contact_list[name],msg,hours,mins,32)
+            pyautogui.click(1050, 950)
+            time.sleep(2)
+            keyboard.press_and_release("enter")
             speak("Message sent")
         else:
             speak("Tell me the hour")
             hours=int(takeCommand())
             speak("Tell me the minutes")
             mins=int(takeCommand())
-            pywhatkit.sendwhatmsg(contact_list[name],msg,hours,mins)
             speak("I will deliver the message on time sir")
+            pywhatkit.sendwhatmsg(contact_list[name],msg,hours,mins,32)
+            pyautogui.click(1050,950)
+            time.sleep(2)
+            keyboard.press_and_release("enter")
+            speak("Message Sent")
     else:
         speak("The name is not there in you contact list")
         speak("Please tell me the number")
@@ -179,25 +188,32 @@ def whatsapp_auto():
         if "right now" in answer or "now" in answer:
             hours = int(datetime.datetime.now().hour)
             mins = int(datetime.datetime.now().minute)
-            mins=mins+1
-            pywhatkit.sendwhatmsg(contact_list[name],msg,hours,mins,20)
-            speak("Messege sent")
+            mins=mins+2
+            pywhatkit.sendwhatmsg(contact_list[name],msg,hours,mins,32)
+            pyautogui.click(1050, 950)
+            time.sleep(2)
+            keyboard.press_and_release("enter")
+            speak("Message sent")
         else:
             speak("Tell me the hour")
             hours = int(takeCommand())
             speak("Tell me the minutes")
             mins = int(takeCommand())
+            speak("I will deliver the message on time sir")
             pywhatkit.sendwhatmsg(contact_list[name], msg,hours,mins)
-            speak("I will deliver the messege on time sir")
+            pyautogui.click(1050, 950)
+            time.sleep(2)
+            keyboard.press_and_release("enter")
+            speak("Message Sent")
 
 def screenshot():
     speak("In which name do you want to this screenshot?")
     name=takeCommand()
     file_name=name + ".png"
-    path_name="D:\\Alpha Project\\Additionals\\Screenshots\\" + file_name
+    path_name="C:\\Users\\ASUS\\AI_Project_Alpha\\Additionals\\Screenshots\\" + file_name
     kk=pyautogui.screenshot()
     kk.save(path_name)
-    os.startfile("D:\\Alpha Project\\Additionals\\Screenshots")
+    os.startfile("C:\\Users\\ASUS\\AI_Project_Alpha\\Additionals\\Screenshots")
     speak("Here is your screenshot")
 
 def jokes():
@@ -222,11 +238,7 @@ def alarm():
         nowf = now.strftime("20%y-%m-%d %H:%M")
         if nowf==a_time:
             speak("Wake up")
-            # mixer.init()
-            # mixer.music.load("C:\\Users\\ASUS\\AI_Project_Alpha\\Alarmm.mp3")
-            # mixer.music.play(5)
             playsound("C:\\Users\\ASUS\\AI_Project_Alpha\\Alarmm.mp3",block=True)
-            # os.startfile("C:\\Users\\ASUS\\Downloads\\Alarm.mp3")
         elif nowf>a_time:
             break
 
@@ -291,28 +303,49 @@ def Temp(query):
     temper=data.find("div",class_="BNeawe")
     speak("The "+quer+" is " + temper.text)
 
-def bookReader():
-    speak("Tell me the name of the book that you want to read")
-    bookname=takeCommand().capitalize()
-    loc="C:\\Users\\ASUS\\AI_Project_Alpha\\Additionals\\Books\\" + bookname + ".pdf"
-    os.startfile(loc)
-    book=open(loc,"rb")
-    pdfreader=PyPDF2.PdfFileReader(book)
-    pages=pdfreader.getNumPages()
-    speak("The total number of pages in the book"+bookname+"is:")
-    speak(pages)
-    speak("From which page do you want me to read it for you?")
-    numPage=int(takeCommand())
-    page=pdfreader.getPage(numPage)
-    text1=page.extractText()
-    speak("In which language do you want me to read it for you?")
-    lan=takeCommand().lower()
-    if "hindi" in lan:
-        translator=googletrans.Translator()
-        translation=translator.translate(text1,dest="hi")
-        textm=translation.text
-        speech=gTTS(text=textm)
-        speech.save(book+".mp3")
-        playsound(book+".mp3")
+def sendEmail():
+    speak("To whom do you want to send the mail?")
+    to=takeCommand().lower()
+    if to in email_list.keys():
+        content = email.message.EmailMessage()
+        speak("What do you want to write in the mail?")
+        msg=takeCommand().capitalize()
+        content.set_content(msg)
+        content.add_header("From", "priyankaghosal12122000@gmail.com")
+        content.add_header("To", email_list[to])
+        speak("Tell me the subject of the mail")
+        sub = takeCommand().capitalize()
+        content.add_header("Subject", sub)
+        try:
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.ehlo()
+            server.starttls()
+            server.login("priyankaghosal12122000@gmail.com", "Priyanka1212")
+            server.send_message(content,"priyankaghosal12122000@gmail.com",email_list[to])
+            server.close()
+            speak("Message Sent")
+        except:
+            speak("There is some problem in sending the mail")
     else:
-        speak(text1)
+        speak("The name of the recipent is not there in your email_directory")
+        speak("Please enter the email id of the recipent")
+        to=input("Email ID of the recipent:")
+        content=email.message.EmailMessage()
+        speak("What do you want to write in the mail?")
+        msg= takeCommand().capitalize()
+        content.set_content(msg)
+        content.add_header("From", "priyankaghosal12122000@gmail.com")
+        content.add_header("To",to)
+        speak("Tell me the subject of the mail")
+        sub = takeCommand().capitalize()
+        content.add_header("Subject", sub)
+        try:
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.ehlo()
+            server.starttls()
+            server.login("priyankaghosal12122000@gmail.com", "Priyanka1212")
+            server.send_message(content,"priyankaghosal12122000@gmail.com",to)
+            server.close()
+            speak("Message sent")
+        except:
+            speak("There is some problem in sending the mail")
